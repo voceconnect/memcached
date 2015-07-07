@@ -118,6 +118,9 @@ class WP_Object_Cache {
 
 		$mc =& $this->get_mc($group);
 		$expire = ($expire == 0) ? $this->default_expiration : $expire;
+		if ( $expire > DAY_IN_SECONDS * 30 ) {
+			$expire += time();
+		}
 		$result = $mc->add($key, $data, false, $expire);
 
 		if ( false !== $result ) {
@@ -274,6 +277,9 @@ class WP_Object_Cache {
 	function replace($id, $data, $group = 'default', $expire = 0) {
 		$key = $this->key($id, $group);
 		$expire = ($expire == 0) ? $this->default_expiration : $expire;
+		if ( $expire > DAY_IN_SECONDS * 30 ) {
+			$expire += time();
+		}
 		$mc =& $this->get_mc($group);
 
 		if ( is_object( $data ) )
@@ -299,6 +305,9 @@ class WP_Object_Cache {
 			return true;
 
 		$expire = ($expire == 0) ? $this->default_expiration : $expire;
+		if ( $expire > DAY_IN_SECONDS * 30 ) {
+			$expire += time();
+		}
 		$mc =& $this->get_mc($group);
 		$result = $mc->set($key, $data, false, $expire);
 
