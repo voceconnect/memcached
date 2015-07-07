@@ -51,10 +51,10 @@ function wp_cache_flush() {
 	return $wp_object_cache->flush();
 }
 
-function wp_cache_get($key, $group = '', $force = false) {
+function wp_cache_get($key, $group = '', $force = false, &$found = null) {
 	global $wp_object_cache;
 
-	return $wp_object_cache->get($key, $group, $force);
+	return $wp_object_cache->get($key, $group, $force, $found);
 }
 
 function wp_cache_init() {
@@ -200,21 +200,27 @@ class WP_Object_Cache {
 		return $ret;
 	}
 
-	function get($id, $group = 'default', $force = false) {
+	function get($id, $group = 'default', $force = false, &$found = null) {
 		$key = $this->key($id, $group);
 		$mc =& $this->get_mc($group);
 
 		if ( isset($this->cache[$key]) && ( !$force || in_array($group, $this->no_mc_groups) ) ) {
+			$found = true;
 			if ( is_object( $this->cache[$key] ) )
  				$value = clone $this->cache[$key];
 			else
 				$value = $this->cache[$key];
 		} else if ( in_array($group, $this->no_mc_groups) ) {
+			$found = false;
 			$this->cache[$key] = $value = false;
 		} else {
 			$value = $mc->get($key);
-	                if ( NULL === $value )
-                        	$value = false;
+            if ( false === $value ) {
+            	$value = false;
+            	$found = false;
+            } else {
+            	$found = true;
+            }
 			$this->cache[$key] = $value;
 		}
 
